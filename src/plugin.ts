@@ -1,8 +1,8 @@
 import streamDeck, { LogLevel } from '@elgato/streamdeck';
-
 import { DesktopToggle } from './actions/desktop-toggle';
+
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
-import { WatchedVariable } from './actions/WatchedVariable';
+import { WatchedVariable } from './WatchedVariable';
 
 // We can enable "trace" logging so that all messages between the Stream Deck, and the plugin are recorded. When storing sensitive information
 streamDeck.logger.setLevel(LogLevel.INFO);
