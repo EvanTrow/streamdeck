@@ -9,15 +9,16 @@ const isConfigured = (settings: DesktopToggleSettings) => {
 	return (settings?.desktop1 ?? '').trim().length > 0 && (settings?.desktop2 ?? '').trim().length > 0;
 };
 
-/**
- * An example action class that displays a count that increments by one each time the button is pressed.
- */
 @action({ UUID: 'tech.trowbridge.streamdeck.desktoptoggle' })
 export class DesktopToggle extends SingletonAction<DesktopToggleSettings> {
+	settings: DesktopToggleSettings = {
+		desktop1: '',
+		desktop2: '',
+	};
+
 	/**
-	 * The {@link SingletonAction.onWillAppear} event is useful for setting the visual representation of an action when it becomes visible. This could be due to the Stream Deck first
-	 * starting up, or the user navigating between pages / folders etc.. There is also an inverse of this event in the form of {@link streamDeck.client.onWillDisappear}. In this example,
-	 * we're setting the title to the "count" that is incremented in {@link DesktopToggle.onKeyDown}.
+	 * Handles the initialization of the action.
+	 * Initializes the settings, updates the button image based on the current desktop, and sets up a listener to watch for desktop changes.
 	 */
 	async onWillAppear(ev: WillAppearEvent<DesktopToggleSettings>) {
 		this.settings = ev.payload.settings;
@@ -30,10 +31,12 @@ export class DesktopToggle extends SingletonAction<DesktopToggleSettings> {
 		currentDesktop.watch(listener);
 	}
 
+	// Clean up when action is removed from the Canvas
 	onWillDisappear(ev: WillDisappearEvent<DesktopToggleSettings>): void | Promise<void> {
 		currentDesktop.unwatch(listener);
 	}
 
+	// Updates the button image based on the current desktop.
 	updateButton(newValue: string, ev: WillAppearEvent<DesktopToggleSettings>) {
 		if (newValue.trim() === this.settings.desktop1) {
 			ev.action.setImage('imgs/actions/desktoptoggle/windows');
@@ -42,14 +45,12 @@ export class DesktopToggle extends SingletonAction<DesktopToggleSettings> {
 		}
 	}
 
-	settings: DesktopToggleSettings = {
-		desktop1: '',
-		desktop2: '',
-	};
+	// update settings when changed
 	onDidReceiveSettings(ev: DidReceiveSettingsEvent<DesktopToggleSettings>): void | Promise<void> {
 		this.settings = ev.payload.settings;
 	}
 
+	// Sends command powershell to switch to the specified desktop.
 	desktopSwitchCommand = (command: string) => {
 		try {
 			if (desktopSwitchPipe) desktopSwitchPipe.stdin.write(`${command}\n`);
@@ -58,12 +59,7 @@ export class DesktopToggle extends SingletonAction<DesktopToggleSettings> {
 		}
 	};
 
-	/**
-	 * Listens for the {@link SingletonAction.onKeyDown} event which is emitted by Stream Deck when an action is pressed. Stream Deck provides various events for tracking interaction
-	 * with devices including key down/up, dial rotations, and device connectivity, etc. When triggered, {@link ev} object contains information about the event including any payloads
-	 * and action information where applicable. In this example, our action will display a counter that increments by one each press. We track the current count on the action's persisted
-	 * settings using `setSettings` and `getSettings`.
-	 */
+	// Handles key press of the action. Switches between the two configured desktops based on the current desktop.
 	async onKeyDown(ev: KeyDownEvent<DesktopToggleSettings>): Promise<void> {
 		const { settings } = ev.payload;
 

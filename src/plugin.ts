@@ -8,13 +8,14 @@ import { WatchedVariable } from './WatchedVariable';
 streamDeck.logger.setLevel(LogLevel.INFO);
 const logger = streamDeck.logger;
 
+/**
+ * Parses the current desktop name from the PowerShell output.
+ * @returns The current desktop name, or `undefined` if it could not be parsed.
+ */
 function getDesktopNameFromPsOutput(): string | undefined {
 	let powershellOutput = psOutput.join('').split('Get-DesktopName; Write-Output')?.[1] ?? '';
-
 	let m;
 	if ((m = /'desktop-name:(?!\$)(.+?)'/.exec(powershellOutput)) !== null) {
-		// The result can be accessed through the `m`-variable.
-
 		for (let index = 0; index < m.length; index++) {
 			const match = m[index];
 			if (index === 1) {
@@ -25,9 +26,15 @@ function getDesktopNameFromPsOutput(): string | undefined {
 	}
 }
 
-export let desktopSwitchPipe: ChildProcessWithoutNullStreams | undefined;
+/**
+ * Starts a PowerShell session and listens for desktop switch events, updating the `currentDesktop` variable with the current desktop name.
+ *
+ * This function spawns a new PowerShell process, listens for output on its stdout and stderr streams, and parses the desktop name from the output.
+ * The function will automatically restart the PowerShell session if it exits for any reason.
+ */
 let psHeader: string;
 let psOutput: string[] = [];
+export let desktopSwitchPipe: ChildProcessWithoutNullStreams | undefined;
 function startDesktopSwitchCommandStream() {
 	logger.info('Starting powershell session');
 	desktopSwitchPipe = spawn('powershell.exe', ['-NoLogo'], { stdio: 'pipe' });
@@ -42,8 +49,10 @@ function startDesktopSwitchCommandStream() {
 		if (!psHeader) {
 			psHeader = output;
 		} else {
+			// remove PowerShell header (first output "PS D:\data>" )
 			output = output.replace(psHeader, '');
 
+			// keep last 5 outputs for desktop name parsing
 			psOutput.push(output);
 			if (psOutput.length > 5) {
 				psOutput.shift();
@@ -64,9 +73,7 @@ function startDesktopSwitchCommandStream() {
 }
 startDesktopSwitchCommandStream();
 
-// let currentDesktop: string;
-
-// Usage example
+// Retrieves the name of the current desktop and update the `currentDesktop` variable every 1 second
 export const currentDesktop = new WatchedVariable<string>('');
 function watchCurrentDesktop() {
 	setInterval(() => {
