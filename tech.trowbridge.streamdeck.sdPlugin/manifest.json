@@ -1,0 +1,45 @@
+{
+	"Name": "Trowbridge",
+	"Version": "0.1.0.0",
+	"Author": "Evan Trowbridge",
+	"Actions": [
+		{
+			"Name": "Desktop Toggle",
+			"Icon": "imgs/actions/desktoptoggle/windows",
+			"States": [
+				{
+					"Image": "imgs/actions/desktoptoggle/windows",
+					"Name": "Toggle Desktop"
+				}
+			],
+			"PropertyInspectorPath": "ui/desktop-toggle.html",
+			"SupportedInMultiActions": true,
+			"Tooltip": "Displays a count, which increments by one on press.",
+			"UUID": "tech.trowbridge.streamdeck.desktoptoggle"
+		}
+	],
+	"Category": "Trowbridge",
+	"CategoryIcon": "imgs/plugin/trowbridge",
+	"CodePath": "bin/plugin.js",
+	"Description": "Trowbridge Custom Utilities",
+	"Icon": "imgs/plugin/trowbridge",
+	"SDKVersion": 2,
+	"Software": {
+		"MinimumVersion": "6.5"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "10.15"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "tech.trowbridge.streamdeck"
+}
