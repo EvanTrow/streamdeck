@@ -58,6 +58,7 @@ function startDesktopSwitchCommandStream() {
 				psOutput.shift();
 			}
 
+			// let desktop name from powershell output
 			let desktopName = getDesktopNameFromPsOutput();
 			if (desktopName) currentDesktop.value = desktopName;
 		}
